@@ -12,12 +12,27 @@ const io = new Server(httpServer, {
     }
 });
 
+
+
 io.on("connection", (socket) => {
     const count = io.engine.clientsCount;
-    console.log('User Connected');
     console.log(`Users : ${count}`)
-    console.log(socket.id)
+    
 });
+io.on("connection", socket=>{
+    socket.on('username', username=>{
+        socket.data.username = username;
+        console.log(`${socket.data.username} joined the Chat`);
+    })
+    
+})
+
+io.on("connection", socket=>{
+    socket.on('message', msg=>{
+        console.log(`${socket.data.username} : ${msg}`);
+    })
+    
+})
 
 
 httpServer.listen(9000);

@@ -4,6 +4,8 @@ const username = document.getElementById('name');
 const nameButton = document.getElementById('name-btn');
 const msgButton = document.getElementById('message-btn');
 const message  = document.getElementById('message');
+const userCount = document.getElementById('userCount');
+const main = document.getElementById('main');
 
 socket.on('connect', ()=>{
     console.log(socket.id);
@@ -14,9 +16,31 @@ nameButton.addEventListener("click", ()=>{
 });
 msgButton.addEventListener("click", ()=>{
     socket.emit('message', message.value);
+    let para = document.createElement("p");
+    para.classList.add('current-user');
+    para.innerHTML = `${message.value}`;
+    main.appendChild(para);
     message.value = "";
-    message.innerHTML = "";
 });
+
+socket.on('userCount', data=>{
+    userCount.innerHTML = `Users : ${data}`;
+    console.log(data);
+})
+
+socket.on('server-message', (msg,username)=>{
+    let para = document.createElement("p");
+    para.innerHTML = `${username} : ${msg}`;
+    para.classList.add('other-user');
+    main.appendChild(para);
+    console.log(msg);
+});
+
+
+
+
+
+
 
 
 

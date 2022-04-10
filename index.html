@@ -4,7 +4,15 @@
         <title>Chat App</title>
         <script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
         <script defer src = "client.js"></script> 
-
+        <style>
+            .current-user{
+                margin-left: auto;
+                color : blue;
+            }
+            .other-user{
+                margin-right : auto;
+            }
+        </style>
     </head>
     <body style = "display: flex; flex-direction: column; justify-content: flex-end; align-items: center;">
         <h1 id = "head">Chat Interface</h1>
@@ -13,9 +21,14 @@
             <input id = "name" type = "text">
             <button id = "name-btn">Enter</button>
         </div>
+        <div>
+            <h4 id = 'userCount'>Users : 0</h4>
+        </div>
         <div style = "text-align : center; width: 600px; height : 650px; background: beige;">
             <h2>Message</h2>
-            <p id = "main" style = "margin-left: 4px; text-align: left;"></p>
+            <div style = "display: flex; flex-direction: column; align-items: flex-start; padding-right: 5px; padding-left: 5px;"id = "main">
+
+            </div>
         </div>
         <div style = "display : flex; margin-top: 5px; flex-direction: row;">
             <input id = "message" type = "text" placeholder="Message" style = "width: 520px;">

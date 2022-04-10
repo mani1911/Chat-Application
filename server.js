@@ -15,6 +15,7 @@ const io = new Server(httpServer, {
 
 
 io.on("connection", (socket) => {
+    socket.emit('userCount',io.engine.clientsCount);
     const count = io.engine.clientsCount;
     console.log(`Users : ${count}`)
     
@@ -22,7 +23,12 @@ io.on("connection", (socket) => {
 io.on("connection", socket=>{
     socket.on('username', username=>{
         socket.data.username = username;
-        console.log(`${socket.data.username} joined the Chat`);
+        if(socket.data.username){
+            console.log(`${socket.data.username} joined the Chat`);
+        }
+        else{
+            console.log(`${socket.id} joined the chat`)
+        }
     })
     
 })
@@ -30,10 +36,11 @@ io.on("connection", socket=>{
 io.on("connection", socket=>{
     socket.on('message', msg=>{
         console.log(`${socket.data.username} : ${msg}`);
+        socket.broadcast.emit('server-message', msg, socket.data.username);
     })
     
+    
 })
-
 
 httpServer.listen(9000);
 

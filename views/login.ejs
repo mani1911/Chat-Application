@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat App Login</title>
+        <script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
+        <script defer src = ""></script> 
+        <style>
+            body{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+        </style>
+    </head>
+    <body>
+        
+        <form action = "/login" method="post">
+            <div style = "display: flex; justify-content: center; flex-direction: column;">
+                <h1>Login.</h1>
+                <div style = "margin : 5px">
+                    <label for = "username">Username</label>
+                    <input id = "username" name = "username" type = "text" required/>
+                </div>
+                <div>
+                    <label for = "password" >Password</label>
+                    <input id = "password" name = "password" type = "password" required/>
+                </div>
+            </div>
+            <button id = "btn" type = "submit">Go</button>
+            
+        </form>
+        
+    </body>
+
+</html>

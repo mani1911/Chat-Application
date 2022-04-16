@@ -7,13 +7,13 @@ const message  = document.getElementById('message');
 const userCount = document.getElementById('userCount');
 const main = document.getElementById('main');
 
-socket.on('connect', ()=>{
-    console.log(socket.id);
-});
+
+
 
 nameButton.addEventListener("click", ()=>{
     socket.emit('username', username.value);
 });
+
 msgButton.addEventListener("click", ()=>{
     socket.emit('message', message.value);
     let para = document.createElement("p");
@@ -27,6 +27,10 @@ socket.on('userCount', data=>{
     userCount.innerHTML = `Users : ${data}`;
     console.log(data);
 })
+socket.on('userCount1', data=>{
+    userCount.innerHTML = `Users : ${data}`;
+    console.log(data);
+})
 
 socket.on('server-message', (msg,username)=>{
     let para = document.createElement("p");
@@ -35,6 +39,9 @@ socket.on('server-message', (msg,username)=>{
     main.appendChild(para);
     console.log(msg);
 });
+
+
+
 
 
 

@@ -6,7 +6,21 @@ const { Server } = require("socket.io");
 const app = express();
 const User = require('./models/userModel');
 const bcrypt = require('bcrypt');
+const session = require('express-session');
 
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+    cors: {
+        origin: '*'
+    }
+});
+httpServer.listen(9000);
+
+app.use(session({
+    secret : 'mySecret',
+    resave : false,
+    saveUninitialized: false
+}))
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use('/static', express.static(path.join(__dirname, 'public')));
@@ -28,7 +42,7 @@ app.post('/register', async (req,res)=>{
         const hash = await bcrypt.hash(password,10);
         const newUser = new User({username : username, password : hash});
         await newUser.save();
-        res.redirect('/chat');
+        res.redirect('/login');
     }
     else{
         res.send('Username already exists. Please Login');
@@ -48,6 +62,7 @@ app.post('/login', async (req,res)=>{
     else{
         const validUser = await bcrypt.compare(password, user.password);
         if(validUser){
+            req.session.username = username;
             res.redirect('/chat');
         }
         else{
@@ -57,15 +72,23 @@ app.post('/login', async (req,res)=>{
     }
 })
 
-app.get('/chat', (req,res)=>{
-    res.render('./index')
-})
-const httpServer = createServer(app);
-const io = new Server(httpServer, {
-    cors: {
-        origin: '*'
+app.get('/chat',(req,res)=>{
+    if(req.session.username){
+        console.log(req.session.username)
+        res.render('./index');
+
+        io.on("connection", socket=>{
+            socket.data.username = req.session.username;
+            socket.broadcast.emit('newUser', socket.data.username);
+            socket.emit('username', socket.data.username);
+            console.log(`${socket.data.username} has joined the chat`)
+            })      
     }
-});
+    else{
+        res.send('please login')
+    }
+})
+
 
 io.on("connection", (socket) => {
     socket.emit('userCount',io.engine.clientsCount);
@@ -74,22 +97,11 @@ io.on("connection", (socket) => {
     
 });
 io.on("connection", (socket) => {
-    socket.emit('userCount',io.engine.clientsCount);
+    socket.broadcast.emit('userCount',io.engine.clientsCount);
     
 });
 
-io.on("connection", socket=>{
-    socket.on('username', username=>{
-        socket.data.username = username;
-        if(socket.data.username){
-            console.log(`${socket.data.username} joined the Chat`);
-        }
-        else{
-            console.log(`${socket.id} joined the chat`)
-        }
-    })
-    
-})
+
 
 io.on("connection", socket=>{
     socket.on('message', msg=>{
@@ -99,7 +111,7 @@ io.on("connection", socket=>{
     
 })
 
-httpServer.listen(9000);
+
 
 
 

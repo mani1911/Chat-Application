@@ -7,6 +7,7 @@ const app = express();
 const User = require('./models/userModel');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
+const flash = require('connect-flash');
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -21,6 +22,8 @@ app.use(session({
     resave : false,
     saveUninitialized: false
 }))
+
+app.use(flash());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use('/static', express.static(path.join(__dirname, 'public')));
@@ -32,7 +35,7 @@ app.get('/', (req,res)=>{
 })
 
 app.get('/register', (req,res)=>{
-    res.render('register');
+    res.render('register', {msg : req.flash('userExists')});
 })
 
 app.post('/register', async (req,res)=>{
@@ -45,12 +48,13 @@ app.post('/register', async (req,res)=>{
         res.redirect('/login');
     }
     else{
-        res.send('Username already exists. Please Login');
+        req.flash('userExists', 'Username already exists.');
+        res.redirect('/register');
     }   
 })
 
 app.get('/login', (req,res)=>{
-    res.render('login')
+    res.render('login', {msg : req.flash('loginFail'), msg1 : req.flash('needLogin')});
 })
 
 app.post('/login', async (req,res)=>{
@@ -66,7 +70,8 @@ app.post('/login', async (req,res)=>{
             res.redirect('/chat');
         }
         else{
-            res.send('Incorrect Username or Password');
+            req.flash('loginFail', 'Incorrect Username or Password');
+            res.redirect('/login');
         }
         
     }
@@ -74,9 +79,7 @@ app.post('/login', async (req,res)=>{
 
 app.get('/chat',(req,res)=>{
     if(req.session.username){
-        console.log(req.session.username)
         res.render('./index');
-
         io.on("connection", socket=>{
             socket.data.username = req.session.username;
             socket.broadcast.emit('newUser', socket.data.username);
@@ -85,7 +88,8 @@ app.get('/chat',(req,res)=>{
             })      
     }
     else{
-        res.send('please login')
+        req.flash('needLogin', 'Login in with your Account');
+        res.redirect('/login')
     }
 })
 
@@ -106,9 +110,7 @@ io.on("connection", (socket) => {
 io.on("connection", socket=>{
     socket.on('message', msg=>{
         socket.broadcast.emit('server-message', msg , socket.data.username);
-    })
-    
-    
+    })    
 })
 
 

@@ -4,7 +4,7 @@ const msgButton = document.getElementById('message-btn');
 const message  = document.getElementById('message');
 const userCount = document.getElementById('userCount');
 const main = document.getElementById('main');
-
+const logoutBtn = document.getElementById('logout');
 
 msgButton.addEventListener("click", ()=>{
     socket.emit('message', message.value);
@@ -15,13 +15,19 @@ msgButton.addEventListener("click", ()=>{
     message.value = "";
 });
 
+logoutBtn.addEventListener('click', ()=>{
+    socket.disconnect();
+    
+})
+
+
+
 socket.on('userCount', data=>{
     userCount.innerHTML = `Users : ${data}`;
-    console.log(data);
+
 })
 socket.on('userCount1', data=>{
     userCount.innerHTML = `Users : ${data}`;
-    console.log(data);
 })
 
 socket.on('server-message', (msg,username)=>{
@@ -31,6 +37,13 @@ socket.on('server-message', (msg,username)=>{
     main.appendChild(para);
     console.log(msg);
 });
+
+socket.on('reducedUserCount', data=>{
+    userCount.innerHTML = `Users : ${data-1}`;
+})
+
+
+
 
 
 

@@ -30,8 +30,16 @@ app.use('/static', express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs');
 
+app.post('/logout' , (req,res)=>{
+
+    req.session.destroy();
+    res.redirect('/');
+
+})
+
 app.get('/', (req,res)=>{
-    res.send('Welcome')
+
+    res.render('home' , {msg : req.flash('loggedOut')})
 })
 
 app.get('/register', (req,res)=>{
@@ -61,7 +69,8 @@ app.post('/login', async (req,res)=>{
     const { username, password } = req.body;
     const user = await User.findOne({username});
     if(!user){
-        res.send('Incorrect Username or Password')
+        req.flash('loginFail', 'Incorrect Username or Password');
+            res.redirect('/login');
     }
     else{
         const validUser = await bcrypt.compare(password, user.password);
@@ -84,8 +93,15 @@ app.get('/chat',(req,res)=>{
             socket.data.username = req.session.username;
             socket.broadcast.emit('newUser', socket.data.username);
             socket.emit('username', socket.data.username);
-            console.log(`${socket.data.username} has joined the chat`)
-            })      
+            console.log(`${socket.data.username} has joined the chat`);
+
+            socket.on('disconnect', ()=>{
+                console.log('A user disconnceted');
+                socket.broadcast.emit('reducedUserCount' , io.engine.clientsCount);
+                console.log(`New client count : ${io.engine.clientsCount}`)
+            })
+        });
+              
     }
     else{
         req.flash('needLogin', 'Login in with your Account');
@@ -112,6 +128,8 @@ io.on("connection", socket=>{
         socket.broadcast.emit('server-message', msg , socket.data.username);
     })    
 })
+
+
 
 
 
